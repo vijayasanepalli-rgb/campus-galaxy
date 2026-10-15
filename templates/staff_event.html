@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}{{ e['title'] }}{% endblock %}
+{% block hero %}
+{% call hero(e['title'], e['kind']|capitalize ~ ' · ' ~ e['event_date'] ~ ' · ' ~ e['location']) %}<a class="btn light sm" href="{{ url_for('staff_events') }}">← All events</a>{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="card scroll">
+  <h3>Applicants ({{ apps|length }})</h3>
+  <p class="muted small">Mark students as attended after the event. Attendance raises their Engagement score.</p>
+  <table class="table">
+    <tr><th>Student</th><th>Applied</th><th>Status</th><th></th></tr>
+    {% for a in apps %}
+    <tr><td><b>{{ a['name'] }}</b> <span class="muted tiny">{{ a['roll_no'] }}</span></td><td class="muted">{{ a['applied_at'] }}</td>
+      <td><span class="pill {{ 'good' if a['status']=='attended' else 'ok' }}">{{ a['status'] }}</span></td>
+      <td class="right"><form method="post"><input type="hidden" name="app_id" value="{{ a['id'] }}">
+        <input type="hidden" name="status" value="{{ 'applied' if a['status']=='attended' else 'attended' }}">
+        <button class="btn ghost sm">{{ 'Undo attended' if a['status']=='attended' else 'Mark attended' }}</button></form></td></tr>
+    {% else %}<tr><td colspan="4" class="empty">No applications yet.</td></tr>{% endfor %}
+  </table>
+</div>
+<form method="post" class="mt" onsubmit="return confirm('Delete this event and its applications?')"><input type="hidden" name="delete" value="1"><button class="btn danger sm">Delete event</button></form>
+{% endblock %}

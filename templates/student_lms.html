@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, bar, kpi with context %}
+{% block title %}LMS{% endblock %}
+{% block hero %}{{ hero('Learning Management', 'Your learning activity, assignment completion and video recommendations for the topics you need most.') }}{% endblock %}
+{% block content %}
+<div class="grid g3">
+  {{ kpi('Videos watched', "%.0f%%"|format(m.video_pct), 'Across all enrolled courses', band(m.video_pct)) }}
+  {{ kpi('Assignments done', "%.0f%%"|format(m.assign_pct), (m.pending_assignments ~ ' pending'), band(m.assign_pct)) }}
+  {{ kpi('Study time', m.hours ~ ' h', 'Per week on the LMS', '') }}
+</div>
+
+<div class="card mt scroll">
+  <h3>My courses</h3>
+  <table class="table">
+    <tr><th>Course</th><th style="width:26%">Videos</th><th style="width:26%">Assignments</th><th class="center">Hours / week</th></tr>
+    {% for c in m.lms %}
+    {% set vp = 100 * c.videos_watched / c.videos_total if c.videos_total else 0 %}
+    {% set ap = 100 * c.assignments_done / c.assignments_total if c.assignments_total else 0 %}
+    <tr><td><b>{{ c.course }}</b></td>
+      <td>{{ bar(vp, band(vp)) }}<span class="tiny muted">{{ c.videos_watched }}/{{ c.videos_total }} videos</span></td>
+      <td>{{ bar(ap, band(ap)) }}<span class="tiny muted">{{ c.assignments_done }}/{{ c.assignments_total }} done</span></td>
+      <td class="center">{{ c.hours_week }}</td></tr>
+    {% else %}<tr><td colspan="4" class="empty">No LMS activity recorded yet.</td></tr>{% endfor %}
+  </table>
+</div>
+
+<h2 class="section-title">▶ Recommended videos <span class="muted small">based on your weak test results</span></h2>
+<div class="grid g3">
+  {% for r in res %}
+  <a class="card" href="{{ r.url }}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">
+    <span class="pill cyan">{{ r.subject }}</span>
+    <h3 style="margin-top:10px">{{ r.title }}</h3>
+    <span class="muted small">Your latest score here: {{ "%.0f"|format(r.score) }}%</span><br>
+    <span style="color:var(--violet);font-weight:600" class="small">Watch lessons →</span>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

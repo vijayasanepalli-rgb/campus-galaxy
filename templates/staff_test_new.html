@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}Post a test{% endblock %}
+{% block hero %}{{ hero('Post a test', 'Create a quiz or a coding exam. Students can take it as soon as you publish.') }}{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:900px">
+  <div class="grid g2">
+    <div><label>Title</label><input name="title" required value="{{ form.get('title','') }}" placeholder="e.g. Data Structures Midterm Quiz"></div>
+    <div><label>Type</label>
+      <select name="kind" id="kind"><option value="coding" {{ 'selected' if form.get('kind')=='coding' }}>Coding exam</option><option value="mcq" {{ 'selected' if form.get('kind')=='mcq' }}>Quiz (multiple choice)</option></select></div>
+    <div><label>Duration (minutes)</label><input type="number" name="duration" value="{{ form.get('duration', 30) }}" min="5" max="240"></div>
+    <div><label>Due date</label><input type="date" name="due_date" value="{{ form.get('due_date','') }}"></div>
+  </div>
+
+  <div id="mcq-box" style="display:none">
+    <label>Subject</label>
+    <select name="subject">{% for s in subjects %}<option>{{ s }}</option>{% endfor %}</select>
+    <label>Questions <span class="muted">(one per line)</span></label>
+    <textarea name="mcq_text" rows="7" placeholder="What is 2+2? | 3 | 4 | 5 | 6 | B&#10;Which is a stack operation? | push | enqueue | join | merge | A">{{ form.get('mcq_text','') }}</textarea>
+    <p class="muted small">Format: <code>Question | option A | option B | option C | option D | correct letter</code></p>
+  </div>
+
+  <div id="code-box" style="display:none">
+    <label>Language</label>
+    <select name="language">{% for l, label in langs.items() %}<option value="{{ l }}" {{ 'selected' if form.get('language')==l }}>{{ label }}</option>{% endfor %}</select>
+    <h3 style="margin-top:18px">Problems</h3>
+    <div id="problems"></div>
+    <button type="button" class="btn ghost sm" onclick="addProblem()">+ Add another problem</button>
+  </div>
+
+  <div style="margin-top:20px"><button class="btn">Publish test</button> <a class="btn ghost" href="{{ url_for('staff_tests') }}">Cancel</a></div>
+</form>
+
+<template id="problem-tpl">
+  <div class="card" style="margin-bottom:12px;background:#fafaff">
+    <label>Problem title</label><input name="p_title" placeholder="e.g. Sum of Two Numbers">
+    <label>Statement</label><textarea name="p_statement" rows="3" placeholder="Describe the input and the expected output"></textarea>
+    <div class="grid g2">
+      <div><label>Test inputs <span class="muted">(separate cases with a line containing ---)</span></label><textarea name="p_inputs" rows="4" placeholder="3 4&#10;---&#10;10 -2"></textarea></div>
+      <div><label>Expected outputs <span class="muted">(same order)</span></label><textarea name="p_outputs" rows="4" placeholder="7&#10;---&#10;8"></textarea></div>
+    </div>
+    <label>Starter code <span class="muted">(optional)</span></label><textarea name="p_starter" rows="3" style="font-family:monospace"></textarea>
+    <p class="muted tiny">The first case is shown to students as a sample; the rest are hidden and used when they submit.</p>
+  </div>
+</template>
+{% endblock %}

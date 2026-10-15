@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, bar, ring, riskpill with context %}
+{% block title %}Success Score{% endblock %}
+{% block hero %}{{ hero('Your Success Score', 'Fully explainable. See exactly which areas add points and where the biggest gains are.') }}{% endblock %}
+{% block content %}
+<div class="grid g23">
+  <div class="card center">
+    {{ ring(m.success, 'out of 100') }}
+    <div style="margin-top:14px">{{ riskpill(m.risk) }} <span class="pill">{{ m.segment }}</span></div>
+    <p class="muted small" style="margin-top:10px">Segments: Star Performers 82+, Steady Progress 68+, Needs a Nudge 55+, At Risk below 55.</p>
+  </div>
+  <div class="card scroll">
+    <h3>How your score is built</h3>
+    <table class="table">
+      <tr><th>Area</th><th style="width:30%">Score</th><th class="center">Weight</th><th class="center">Points</th></tr>
+      {% for c in m.components %}
+      <tr><td><b>{{ c.label }}</b><br><span class="muted tiny">{{ c.note }}</span></td>
+        <td>{{ bar(c.score, band(c.score)) }}<span class="tiny muted">{{ "%.0f"|format(c.score) }}/100</span></td>
+        <td class="center">{{ c.weight }}</td><td class="center"><b>{{ c.points }}</b></td></tr>
+      {% endfor %}
+      <tr><td colspan="3" class="right"><b>Total</b></td><td class="center"><b>{{ m.success }}</b></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="grid g2 mt">
+  <div class="card">
+    <h3>🚀 Biggest opportunities</h3>
+    {% for c in m.components|sort(attribute='gain', reverse=True) %}{% if c.gain > 0 and loop.index <= 3 %}
+    <div class="tip"><b>+{{ c.gain }}</b><span>Raise <b style="color:inherit">{{ c.label }}</b> from {{ "%.0f"|format(c.score) }} to 80 to gain about {{ c.gain }} points.</span></div>
+    {% endif %}{% endfor %}
+  </div>
+  <div class="card">
+    <h3>⚠️ At-risk signals</h3>
+    {% if m.reasons %}<ul class="list">{% for r in m.reasons %}<li><span class="pill low">Flag</span><span>{{ r }}</span></li>{% endfor %}</ul>
+    {% else %}<div class="empty" style="padding:10px 0">No at-risk signals right now.</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

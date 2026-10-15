@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, kpi with context %}
+{% block title %}Interventions{% endblock %}
+{% block hero %}{{ hero('Intervention tracking', 'Every support action for at-risk students, from first meeting to resolution.') }}{% endblock %}
+{% block content %}
+<div class="grid g3">
+  {{ kpi('Open', counts.get('open', 0), 'Not started', '') }}
+  {{ kpi('In progress', counts.get('in_progress', 0), 'Being worked on', '') }}
+  {{ kpi('Done', counts.get('done', 0), 'Resolved', 'good') }}
+</div>
+<div class="chips mt">
+  <a class="chip {{ 'on' if not flt }}" href="{{ url_for('staff_interventions') }}">All</a>
+  {% for s in ['open','in_progress','done'] %}<a class="chip {{ 'on' if flt == s }}" href="{{ url_for('staff_interventions', status=s) }}">{{ s.replace('_',' ')|capitalize }}</a>{% endfor %}
+</div>
+<div class="card mt scroll">
+  <table class="table">
+    <tr><th>Student</th><th>Action</th><th>Updated</th><th>Status</th></tr>
+    {% for i in rows %}
+    <tr><td><a href="{{ url_for('staff_student', sid=i['student_id']) }}"><b>{{ i['sname'] }}</b></a><br><span class="muted tiny">{{ i['roll_no'] }}</span></td>
+      <td><b>{{ i['action'] }}</b><br><span class="muted small">{{ i['notes'] }}</span></td><td class="muted">{{ i['updated_at'] }}</td>
+      <td><form method="post" action="{{ url_for('staff_interventions', status=flt) }}"><input type="hidden" name="id" value="{{ i['id'] }}">
+        <select name="status" onchange="this.form.submit()" style="width:auto">
+          {% for s in ['open','in_progress','done'] %}<option value="{{ s }}" {{ 'selected' if i['status']==s }}>{{ s.replace('_',' ')|capitalize }}</option>{% endfor %}</select></form></td></tr>
+    {% else %}<tr><td colspan="4" class="empty">No interventions.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

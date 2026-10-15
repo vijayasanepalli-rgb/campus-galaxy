@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}{{ t['title'] }}{% endblock %}
+{% block hero %}
+{% call hero(t['title'], 'Questions are ready for you. Write your code, click Run to test on the samples, then Submit to be judged on all test cases. Your best score per problem counts.', robot=True) %}
+  <span class="pill dark">{{ lang_label }}</span><a class="btn light sm" href="{{ url_for('student_tests', kind='coding') }}">← All coding exams</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+{% if not available %}<div class="flash error">{{ lang_label }} is not installed on this server, so Run and Submit won't work here. Try Python, or run the app where {{ lang_label }} is available.</div>{% endif %}
+<div class="ide">
+  <div>
+    <h3 style="margin-bottom:10px">Problems</h3>
+    <div class="plist">
+      {% for p in probs %}<button data-id="{{ p.id }}"><span>{{ loop.index }}. {{ p.title }}</span><span class="pill sc">{{ "%g"|format(p.best) }}/{{ p.points }}</span></button>{% endfor %}
+    </div>
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:14px">
+      <h3 id="ptitle"></h3><span class="pill" id="pstate"></span>
+      <p id="pstatement" style="margin:10px 0"></p>
+      <div id="psamples"></div>
+    </div>
+    <textarea id="code" class="editor" spellcheck="false" autocapitalize="off"></textarea>
+    <div class="row" style="margin-top:12px">
+      <div class="grow"><input id="stdin" placeholder="Optional: custom input to test your code (leave empty to run the samples)"></div>
+      <button class="btn ghost" id="run">▶ Run</button>
+      <button class="btn" id="submit">Submit</button>
+    </div>
+    <div class="scorebox" id="scorebox"></div>
+    <div class="console" id="console">Output appears here.</div>
+    <div id="results"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script>initIDE({{ probs|tojson }});</script>{% endblock %}

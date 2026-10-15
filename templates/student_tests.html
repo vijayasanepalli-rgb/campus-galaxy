@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}Tests{% endblock %}
+{% block hero %}{{ hero('Tests', 'Quizzes and coding exams posted by your faculty. Coding exams are organised by language, questions are ready, and you can write and run your code right here.', robot=True) }}{% endblock %}
+{% block content %}
+<div class="chips mb">
+  <a class="chip {{ 'on' if not kind and not lang }}" href="{{ url_for('student_tests') }}">All</a>
+  <a class="chip {{ 'on' if kind == 'mcq' }}" href="{{ url_for('student_tests', kind='mcq') }}">Quizzes</a>
+  <a class="chip {{ 'on' if kind == 'coding' and not lang }}" href="{{ url_for('student_tests', kind='coding') }}">Coding exams</a>
+  {% for l, label in lang_labels.items() %}<a class="chip {{ 'on' if lang == l }}" href="{{ url_for('student_tests', kind='coding', lang=l) }}">{{ label.split(' ')[0] }}</a>{% endfor %}
+</div>
+
+{% set coding = tests|selectattr('kind', 'equalto', 'coding')|list %}
+{% set quizzes = tests|selectattr('kind', 'equalto', 'mcq')|list %}
+{% if coding %}
+<h2 class="section-title">💻 Coding exams by language</h2>
+<div class="grid g4">
+  {% for t in coding %}
+  <div class="card test-card">
+    <div class="lang">{{ {'python':'Py','javascript':'JS','c':'C','java':'Jv'}.get(t.language, '?') }}</div>
+    <h3 style="margin:4px 0 0">{{ t.title }}</h3>
+    <span class="muted small">{{ t.pn }} problems · {{ t.duration }} min · due {{ t.due_date }}</span>
+    {% if not avail.get(t.language) %}<span class="pill ok">Runtime not installed on this server</span>{% endif %}
+    {% if t.done %}<span class="pill good">Best score {{ t.best }}</span>{% else %}<span class="pill">Not started</span>{% endif %}
+    <a class="btn sm" style="margin-top:6px;justify-content:center" href="{{ url_for('student_take', tid=t.id) }}">{{ 'Continue' if t.done else 'Start exam' }}</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% if quizzes %}
+<h2 class="section-title">📝 Subject quizzes</h2>
+<div class="grid g3">
+  {% for t in quizzes %}
+  <div class="card test-card quiz">
+    <div class="lang">Q</div>
+    <h3 style="margin:4px 0 0">{{ t.title }}</h3>
+    <span class="muted small">{{ t.qn }} questions · {{ t.duration }} min · due {{ t.due_date }}</span>
+    {% if t.done %}<span class="pill good">Best score {{ t.best }}</span>{% else %}<span class="pill">Not attempted</span>{% endif %}
+    <a class="btn sm" style="margin-top:6px;justify-content:center" href="{{ url_for('student_take', tid=t.id) }}">{{ 'Retake quiz' if t.done else 'Start quiz' }}</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% if not tests %}<div class="card empty">No tests match this filter.</div>{% endif %}
+{% endblock %}

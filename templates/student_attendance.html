@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, bar, ring with context %}
+{% block title %}Attendance{% endblock %}
+{% block hero %}{{ hero('Attendance', 'Overall and subject-wise attendance, with exactly how many classes you need to stay above 75%.') }}{% endblock %}
+{% block content %}
+<div class="grid g23">
+  <div class="card center">
+    <h3>Overall</h3>
+    {{ ring(m.att_overall, 'attended') }}
+    <p class="muted small" style="margin-top:12px">{{ m.attendance|sum(attribute='attended') }} of {{ m.attendance|sum(attribute='total') }} classes</p>
+    {% if m.att_overall < 75 %}<span class="pill low">Below 75% minimum</span>{% else %}<span class="pill good">Above 75% minimum</span>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Subject-wise <span class="sub">the dark line marks 75%</span></h3>
+    {% for a in m.attendance %}
+    <div class="barrow"><span class="n">{{ a.name }}</span><div class="marker">{{ bar(a.pct, band(a.pct)) }}</div><span class="p">{{ "%.0f"|format(a.pct) }}%</span></div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card mt scroll">
+  <h3>What you can do</h3>
+  <table class="table">
+    <tr><th>Subject</th><th class="center">Attended</th><th class="center">Total</th><th>Status</th></tr>
+    {% for a in m.attendance %}
+    <tr><td><b>{{ a.name }}</b></td><td class="center">{{ a.attended }}</td><td class="center">{{ a.total }}</td>
+      <td>{% if a.pct < 75 %}<span class="pill low">Attend the next {{ a.need }} classes to reach 75%</span>
+          {% else %}<span class="pill good">Safe. You can miss up to {{ a.can_miss }} more class(es)</span>{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

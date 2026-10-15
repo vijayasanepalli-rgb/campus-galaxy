@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}Data Integration{% endblock %}
+{% block hero %}{{ hero('Data Integration', 'Bring academic, attendance, LMS, engagement, placement, skills and feedback data into one place with CSV uploads. Scores update immediately.') }}{% endblock %}
+{% block content %}
+{% if result %}
+<div class="flash {{ 'ok' if not result.n_err else 'error' }}">
+  <b>{{ result.dataset }}:</b> {{ result.ok }} row(s) imported{% if result.n_err %}, {{ result.n_err }} skipped.{% endif %}
+  {% for e in result.errors %}<div class="small">• {{ e }}</div>{% endfor %}
+</div>
+{% endif %}
+<div class="grid g2">
+  {% for key, spec in specs.items() %}
+  <form class="card" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="dataset" value="{{ key }}">
+    <h3>{{ spec.label }} <span class="sub">{{ counts[key] }} records{% if last.get(key) %} · last import {{ last[key] }}{% endif %}</span></h3>
+    <p class="muted tiny">Columns: <code>{{ spec.cols|join(', ') }}</code></p>
+    <input type="file" name="file" accept=".csv,text/csv">
+    <div style="margin-top:10px" class="row"><button class="btn sm">Import CSV</button>
+      <a class="btn ghost sm" href="{{ url_for('admin_template', dataset=key) }}">Download template</a></div>
+  </form>
+  {% endfor %}
+</div>
+<div class="card mt"><h3>Import history</h3>
+  <ul class="list">{% for l in logs %}<li style="justify-content:space-between"><span><b>{{ l['dataset'] }}</b> · {{ l['rows_ok'] }} imported, {{ l['rows_err'] }} errors · by {{ l['by_name'] }}</span><span class="muted tiny">{{ l['created_at'] }}</span></li>
+    {% else %}<li class="empty">No imports yet.</li>{% endfor %}</ul>
+</div>
+{% endblock %}

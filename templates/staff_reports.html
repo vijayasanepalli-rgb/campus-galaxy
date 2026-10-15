@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, kpi, riskpill with context %}
+{% block title %}Reports{% endblock %}
+{% block hero %}
+{% call hero('Reports', 'Cohort performance, risk distribution and intervention outcomes. Export everything to CSV.') %}
+  <a class="btn" href="{{ url_for('staff_export') }}">⬇ Export CSV</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="grid g4">
+  {{ kpi('High risk', risk.high, 'students', 'low' if risk.high else 'good') }}
+  {{ kpi('Medium risk', risk.medium, 'students', 'ok') }}
+  {{ kpi('Low risk', risk.low, 'students', 'good') }}
+  {{ kpi('Interventions resolved', resolved ~ '%', iv.get('done', 0) ~ ' done of ' ~ (iv.values()|sum), 'good' if resolved >= 50 else 'ok') }}
+</div>
+<div class="grid g2 mt">
+  <div class="card"><h3>Average score by area</h3><div class="chartbox"><canvas id="areas"></canvas></div></div>
+  <div class="card"><h3>Segments</h3>
+    <ul class="list">{% for k, v in seg.items() %}<li style="justify-content:space-between"><span>{{ k }}</span><b>{{ v }}</b></li>{% endfor %}</ul></div>
+</div>
+<div class="card mt scroll">
+  <h3>Cohort table</h3>
+  <table class="table">
+    <tr><th>Roll</th><th>Student</th><th class="center">Success</th><th class="center">Attendance</th><th class="center">Backlogs</th><th>Risk</th></tr>
+    {% for r in rows|sort(attribute='m.success') %}
+    <tr><td class="muted">{{ r.u['roll_no'] }}</td><td><a href="{{ url_for('staff_student', sid=r.u['id']) }}">{{ r.u['name'] }}</a></td>
+      <td class="center">{{ "%.0f"|format(r.m.success) }}</td><td class="center">{{ "%.0f"|format(r.m.att_overall) }}%</td>
+      <td class="center">{{ r.m.backlogs|length }}</td><td>{{ riskpill(r.m.risk) }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
+{% block scripts %}<script>barChart("areas", {{ chart.labels|tojson }}, {{ chart.vals|tojson }}, "Average", 55);</script>{% endblock %}

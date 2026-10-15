@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}{{ t['title'] }}{% endblock %}
+{% block hero %}{{ hero(t['title'], 'Answer all questions. The quiz submits automatically when time runs out.', robot=True) }}{% endblock %}
+{% block content %}
+<div class="timer" id="timer">Time left</div>
+<form method="post" id="quiz" action="{{ url_for('student_submit', tid=t['id']) }}" style="max-width:820px">
+  {% for q in qs %}
+  <div class="q"><b>Q{{ loop.index }}. {{ q.prompt }}</b>
+    {% for o in q.options %}<label class="opt"><input type="radio" name="q{{ q.id }}" value="{{ loop.index0 }}"> {{ o }}</label>{% endfor %}
+  </div>
+  {% endfor %}
+  <button class="btn">Submit quiz</button>
+  <a class="btn ghost" href="{{ url_for('student_tests') }}">Cancel</a>
+</form>
+{% endblock %}
+{% block scripts %}<script>initTimer({{ t['duration'] }}, "quiz");</script>{% endblock %}

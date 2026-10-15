@@ -1,0 +1,25 @@
+{% macro hero(title, sub, robot=False) %}
+<section class="hero stars">
+  <img class="art" src="{{ url_for('static', filename='img/galaxy.svg') }}" alt="">
+  {% if robot %}<img class="robot" src="{{ url_for('static', filename='img/robot.svg') }}" alt="Friendly robot">{% endif %}
+  <h1>{{ title }}</h1>
+  <p>{{ sub }}</p>
+  {% if caller %}<div class="actions">{{ caller() }}</div>{% endif %}
+</section>
+{% endmacro %}
+
+{% macro bar(p, cls='') %}<div class="bar {{ cls }}"><i style="width:{{ [[p, 0]|max, 100]|min }}%"></i></div>{% endmacro %}
+
+{% macro ring(score, label='', size='') %}
+<div class="ring {{ size }} {{ band(score) }}" style="--p:{{ score }}"><div><span>{{ "%.0f"|format(score) }}</span>{% if label %}<small>{{ label }}</small>{% endif %}</div></div>
+{% endmacro %}
+
+{% macro kpi(label, value, note='', cls='') %}
+<div class="card kpi {{ cls }}"><span class="l">{{ label }}</span><span class="v">{{ value }}</span><span class="d">{{ note }}</span></div>
+{% endmacro %}
+
+{% macro riskpill(r) %}<span class="pill {{ r if r != 'low' else 'lowrisk' }}">{{ r|capitalize }} risk</span>{% endmacro %}
+
+{% macro cell(v) %}<span class="cell {{ band(v) }}">{{ "%.0f"|format(v) }}</span>{% endmacro %}
+
+{% macro eventdate(d) %}<div class="date"><b>{{ d[8:10] }}</b><span>{{ d|mon }}</span></div>{% endmacro %}

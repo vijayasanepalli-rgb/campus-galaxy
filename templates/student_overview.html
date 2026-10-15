@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, bar, ring, kpi, riskpill, eventdate with context %}
+{% block title %}Overview{% endblock %}
+{% block hero %}
+{% call hero('Welcome back, ' ~ user['name'].split()[0], 'Here is how your semester is shaping up. Small steps this week can lift your score.') %}
+  <a class="btn" href="{{ url_for('student_tests') }}">Take a test</a>
+  <a class="btn light" href="{{ url_for('copilot_page') }}">Ask AI Copilot</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="grid g4">
+  <div class="card center">
+    {{ ring(m.success, 'Success score') }}
+    <div style="margin-top:12px">{{ riskpill(m.risk) }} <span class="pill">{{ m.segment }}</span></div>
+  </div>
+  {{ kpi('Attendance', "%.0f%%"|format(m.att_overall), 'Minimum required: 75%', band(m.att_overall)) }}
+  {{ kpi('Academic average', "%.0f%%"|format(m.academics), (m.backlogs|length ~ ' backlog(s)') if m.backlogs else 'No backlogs', band(m.academics)) }}
+  {{ kpi('Placement readiness', "%.0f"|format(m.placement.score), 'Coding ' ~ "%.0f"|format(m.placement.coding) ~ ' · Aptitude ' ~ "%.0f"|format(m.placement.aptitude), band(m.placement.score)) }}
+</div>
+
+<div class="grid g2 mt">
+  <div class="card"><h3>Score trend across exams</h3><div class="chartbox"><canvas id="trend"></canvas></div></div>
+  <div class="card"><h3>Subject scores <span class="sub">latest exam, pink = needs attention</span></h3><div class="chartbox"><canvas id="subjects"></canvas></div></div>
+</div>
+
+<div class="grid g2 mt">
+  <div class="card">
+    <h3>✨ Suggested for you</h3>
+    {% for k, t in tips %}<div class="tip"><b>{{ k }}</b><span>{{ t }}</span></div>{% endfor %}
+    <a class="btn ghost sm" href="{{ url_for('copilot_page') }}">Ask the Copilot for more</a>
+  </div>
+  <div class="card">
+    <h3>⚠️ Risk indicators</h3>
+    {% if m.reasons %}
+      <ul class="list">{% for r in m.reasons %}<li><span class="pill low">Flag</span><span>{{ r }}</span></li>{% endfor %}</ul>
+    {% else %}<div class="empty" style="padding:10px 0">No risk flags. You are on track. 🎉</div>{% endif %}
+    {% if support %}
+      <h3 style="margin-top:16px">Support from your faculty</h3>
+      <ul class="list">{% for s in support %}<li><span class="pill {{ 'good' if s['status']=='done' else 'ok' }}">{{ s['status'].replace('_',' ') }}</span><span><b>{{ s['action'] }}</b><br><span class="muted small">{{ s['notes'] }}</span></span></li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid g2 mt">
+  <div class="card">
+    <h3>🏆 Open events <a class="small" style="float:right" href="{{ url_for('student_engagement') }}">See all</a></h3>
+    {% for e in upcoming %}
+    <div class="event" style="margin-bottom:12px">{{ eventdate(e['event_date']) }}
+      <div style="flex:1"><b>{{ e['title'] }}</b> <span class="pill cyan">{{ e['kind'] }}</span><div class="muted small">{{ e['location'] }}</div></div>
+      <form method="post" action="{{ url_for('student_apply', eid=e['id']) }}"><button class="btn sm">Apply</button></form>
+    </div>
+    {% else %}<div class="empty">You have applied to every upcoming event.</div>{% endfor %}
+  </div>
+  <div class="card">
+    <h3>📝 Tests waiting</h3>
+    <div class="kpi"><span class="v">{{ pending }}</span><span class="d">quizzes and coding exams not attempted yet</span></div>
+    <p class="muted small">Coding exams are organised by language, with questions ready. Write, run and submit code to raise your coding readiness.</p>
+    <a class="btn" href="{{ url_for('student_tests') }}">Go to Tests</a>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const C = {{ chart|tojson }};
+lineChart("trend", C.exams, C.avgs, "Average %");
+barChart("subjects", C.subjects, C.latest, "Latest %");
+</script>
+{% endblock %}

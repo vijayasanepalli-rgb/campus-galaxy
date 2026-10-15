@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, ring with context %}
+{% block title %}Result{% endblock %}
+{% block hero %}{{ hero(t['title'] ~ ': result', 'Review each answer below and learn from the ones you missed.', robot=True) }}{% endblock %}
+{% block content %}
+<div class="grid g23">
+  <div class="card center">{{ ring(100 * score / mx if mx else 0, score|int ~ ' / ' ~ mx|int) }}
+    <p class="muted small" style="margin-top:12px">Your quiz average feeds your Academics score.</p>
+    <a class="btn" href="{{ url_for('student_take', tid=t['id']) }}">Retake</a>
+    <a class="btn ghost" href="{{ url_for('student_tests') }}">All tests</a></div>
+  <div>
+    {% for r in review %}
+    <div class="q {{ 'right' if r.right else 'wrong' }}"><b>Q{{ loop.index }}. {{ r.prompt }}</b>
+      {% for o in r.options %}
+      <div class="opt" style="cursor:default;{% if loop.index0 == r.answer %}border-color:#9ddcc0;{% elif loop.index0 == r.chosen %}border-color:#f5b9bc;{% endif %}">
+        {% if loop.index0 == r.answer %}✔{% elif loop.index0 == r.chosen %}✘{% else %}&nbsp;&nbsp;{% endif %} {{ o }}</div>
+      {% endfor %}
+      {% if r.chosen is none %}<div class="muted small" style="margin-top:6px">Not answered</div>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

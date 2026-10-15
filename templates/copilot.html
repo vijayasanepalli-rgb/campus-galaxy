@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}AI Copilot{% endblock %}
+{% block hero %}{{ hero('AI Campus Copilot', ('Ask in plain language. I explain concepts, create fresh practice questions, plan your study week and recommend resources.' if user['role'] == 'student' else 'Ask about at-risk students, attendance, coding readiness or a class summary.'), robot=True) }}{% endblock %}
+{% block content %}
+<div class="grid g32">
+  <div class="card chat">
+    <div class="msgs" id="msgs"></div>
+    <div class="chips" id="chat-chips" style="margin-top:10px">
+      {% for c in chips %}<button class="chip" type="button" data-ask="{{ c }}">{{ c }}</button>{% endfor %}
+    </div>
+    <form class="chatbar" id="chat-form" autocomplete="off">
+      <input id="chat-input" placeholder="{{ 'e.g. Explain deadlock, or give me 5 practice questions on DBMS' if user['role']=='student' else 'e.g. Which students are at risk?' }}" maxlength="500">
+      <button class="btn">Send</button>
+    </form>
+  </div>
+  <div class="card">
+    <div class="bot-head"><img src="{{ url_for('static', filename='img/robot.svg') }}" alt=""><div><h3 style="margin:0">Copilot</h3><span class="muted small">Grounded in your campus data</span></div></div>
+    {% if tips %}
+      <h3 style="font-size:14px">Suggestions for you</h3>
+      {% for k, t in tips %}<div class="tip"><b>{{ k }}</b><span>{{ t }}</span></div>{% endfor %}
+    {% else %}
+      <p class="muted">Try: <i>Which students are at risk?</i>, <i>Who has low attendance?</i> or <i>Class summary</i>.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.COPILOT_HELLO = "Hi {{ user['name'].split()[0] }}! I'm your Campus Copilot. Ask me anything, or tap a suggestion below.";initCopilot();</script>
+{% endblock %}

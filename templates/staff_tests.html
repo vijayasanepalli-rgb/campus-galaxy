@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero with context %}
+{% block title %}Tests & Coding{% endblock %}
+{% block hero %}
+{% call hero('Tests & coding exams', 'Post quizzes and language-based coding exams. Students see them instantly on their dashboard.') %}
+  <a class="btn" href="{{ url_for('staff_test_new') }}">+ Post a new test</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="card scroll">
+  <table class="table">
+    <tr><th>Title</th><th>Type</th><th>Items</th><th>Duration</th><th>Due</th><th class="center">Students</th><th></th></tr>
+    {% for t in rows %}
+    <tr><td><b>{{ t['title'] }}</b><br><span class="muted tiny">by {{ t['author'] or 'system' }}</span></td>
+      <td>{% if t['kind']=='coding' %}<span class="pill dark">Coding · {{ lang_labels.get(t['language'], t['language']) }}</span>{% else %}<span class="pill">Quiz · {{ t['subject'] }}</span>{% endif %}</td>
+      <td>{{ t['pn'] if t['kind']=='coding' else t['qn'] }} {{ 'problems' if t['kind']=='coding' else 'questions' }}</td>
+      <td>{{ t['duration'] }} min</td><td>{{ t['due_date'] }}</td><td class="center">{{ t['takers'] }}</td>
+      <td class="right nowrap"><a class="btn ghost sm" href="{{ url_for('staff_test_results', tid=t['id']) }}">Results</a>
+        <form method="post" action="{{ url_for('staff_test_delete', tid=t['id']) }}" style="display:inline" onsubmit="return confirm('Delete this test and all its results?')"><button class="btn danger sm">Delete</button></form></td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

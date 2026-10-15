@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, kpi, riskpill with context %}
+{% block title %}Overview{% endblock %}
+{% block hero %}
+{% call hero(('Administrator console' if user['role']=='admin' else 'Faculty dashboard'), 'Class-wide student success at a glance: who is thriving, who needs a nudge, and what to do next.') %}
+  <a class="btn" href="{{ url_for('staff_test_new') }}">Post a test</a>
+  <a class="btn light" href="{{ url_for('staff_events') }}">Post an event</a>
+  {% if user['role']=='admin' %}<a class="btn light" href="{{ url_for('admin_integration') }}">Import data</a>{% endif %}
+{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="grid g4">
+  {{ kpi('Students', stats.students, 'In this cohort', '') }}
+  {{ kpi('Average success score', stats.avg, 'Out of 100', band(stats.avg)) }}
+  {{ kpi('Average attendance', "%.0f%%"|format(stats.att), 'Minimum 75%', band(stats.att)) }}
+  {{ kpi('High-risk students', stats.high, stats.open_iv ~ ' open interventions', 'low' if stats.high else 'good') }}
+</div>
+
+<div class="grid g2 mt">
+  <div class="card"><h3>Student segments</h3><div class="chartbox"><canvas id="seg"></canvas></div></div>
+  <div class="card scroll">
+    <h3>⚠️ Needs attention <a class="small" style="float:right" href="{{ url_for('staff_students', risk='high') }}">View all</a></h3>
+    <table class="table">
+      {% for r in risky %}
+      <tr><td><a href="{{ url_for('staff_student', sid=r.u['id']) }}"><b>{{ r.u['name'] }}</b></a><br><span class="muted tiny">{{ r.m.reasons[0] if r.m.reasons else '' }}</span></td>
+        <td class="right"><span class="cell low">{{ "%.0f"|format(r.m.success) }}</span></td></tr>
+      {% else %}<tr><td class="empty">No high-risk students. 🎉</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="grid g2 mt">
+  <div class="card">
+    <h3>Latest event applications</h3>
+    <ul class="list">{% for a in recent %}<li style="justify-content:space-between"><span><b>{{ a['uname'] }}</b> applied to {{ a['title'] }}</span><span class="muted tiny">{{ a['applied_at'] }}</span></li>
+      {% else %}<li class="empty">No applications yet.</li>{% endfor %}</ul>
+  </div>
+  {% if user['role']=='admin' %}
+  <div class="card">
+    <h3>Recent data imports <a class="small" style="float:right" href="{{ url_for('admin_integration') }}">Open</a></h3>
+    <ul class="list">{% for l in logs %}<li style="justify-content:space-between"><span><b>{{ l['dataset'] }}</b> · {{ l['rows_ok'] }} rows{% if l['rows_err'] %}, {{ l['rows_err'] }} errors{% endif %}</span><span class="muted tiny">{{ l['created_at'] }}</span></li>
+      {% else %}<li class="empty">No imports yet. Use Data Integration to load data.</li>{% endfor %}</ul>
+  </div>
+  {% else %}
+  <div class="card"><h3>Quick actions</h3>
+    <div class="chips"><a class="chip" href="{{ url_for('staff_test_new') }}">+ Coding exam</a><a class="chip" href="{{ url_for('staff_test_new') }}">+ Quiz</a><a class="chip" href="{{ url_for('staff_events') }}">+ Hackathon</a><a class="chip" href="{{ url_for('copilot_page') }}">Ask Copilot</a><a class="chip" href="{{ url_for('staff_reports') }}">Reports</a></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script>donutChart("seg", {{ chart.labels|tojson }}, {{ chart.vals|tojson }}, ["#6c5ce7","#35c6f4","#f6c453","#ff6fb5"]);</script>{% endblock %}

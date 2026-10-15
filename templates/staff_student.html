@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, bar, ring, riskpill, cell with context %}
+{% block title %}{{ s['name'] }}{% endblock %}
+{% block hero %}
+{% call hero(s['name'], s['roll_no'] ~ ' · ' ~ s['department'] ~ ' · Year ' ~ s['year']) %}
+  <a class="btn light sm" href="{{ url_for('staff_students') }}">← All students</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="grid g23">
+  <div class="card center">{{ ring(m.success, 'Success score') }}
+    <div style="margin-top:12px">{{ riskpill(m.risk) }} <span class="pill">{{ m.segment }}</span></div></div>
+  <div class="card scroll">
+    <h3>Explainable score</h3>
+    <table class="table">
+      {% for c in m.components %}
+      <tr><td><b>{{ c.label }}</b><br><span class="muted tiny">{{ c.note }}</span></td><td style="width:28%">{{ bar(c.score, band(c.score)) }}</td><td class="center">{{ cell(c.score) }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="grid g2 mt">
+  <div class="card">
+    <h3>⚠️ At-risk signals</h3>
+    {% if m.reasons %}<ul class="list">{% for r in m.reasons %}<li><span class="pill low">Flag</span><span>{{ r }}</span></li>{% endfor %}</ul>
+    {% else %}<div class="empty" style="padding:8px 0">No risk signals.</div>{% endif %}
+    <h3 style="margin-top:16px">Marks by exam</h3>
+    <table class="table">
+      <tr><th>Subject</th>{% for e in m.exams %}<th class="center">{{ e }}</th>{% endfor %}</tr>
+      {% for sb in m.subjects %}<tr><td>{{ sb.name }}</td>{% for v in sb.trend %}<td class="center">{{ cell(v) }}</td>{% endfor %}</tr>{% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h3>Interventions</h3>
+    <form method="post" action="{{ url_for('staff_add_intervention', sid=s['id']) }}">
+      <input name="action" placeholder="Action, e.g. Mentor meeting, remedial class" required>
+      <textarea name="notes" rows="2" placeholder="Notes (optional)" style="margin-top:8px"></textarea>
+      <button class="btn sm" style="margin-top:8px">Log intervention</button>
+    </form>
+    <ul class="list" style="margin-top:10px">
+      {% for i in iv %}<li><span class="pill {{ 'good' if i['status']=='done' else 'ok' }}">{{ i['status'].replace('_',' ') }}</span>
+        <span><b>{{ i['action'] }}</b><br><span class="muted small">{{ i['notes'] }}</span><br><span class="muted tiny">{{ i['by_name'] }} · {{ i['created_at'] }}</span></span></li>
+      {% else %}<li class="empty">No interventions yet.</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="card mt">
+  <h3>Faculty feedback</h3>
+  <form class="row" method="post" action="{{ url_for('staff_add_feedback', sid=s['id']) }}">
+    <div class="grow" style="flex:3"><input name="comment" placeholder="Write feedback for this student" required></div>
+    <select name="rating" style="width:auto">{% for r in [5,4,3,2,1] %}<option value="{{ r }}">{{ r }} ★</option>{% endfor %}</select>
+    <button class="btn sm">Save</button>
+  </form>
+  <ul class="list">{% for f in m.feedback %}<li><span><b>{{ f.from_name }}</b> <span class="muted tiny">{{ f.created_at }} · {{ f.rating }}★</span><br>{{ f.comment }}</span></li>{% endfor %}</ul>
+</div>
+{% endblock %}

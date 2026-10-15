@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, eventdate with context %}
+{% block title %}Events{% endblock %}
+{% block hero %}{{ hero('Events & activities', 'Post hackathons, workshops, clubs, certifications and events. Students can apply from their dashboard.') }}{% endblock %}
+{% block content %}
+<div class="grid g32">
+  <div class="card scroll">
+    <h3>All events</h3>
+    <table class="table">
+      <tr><th>Event</th><th>Date</th><th class="center">Applied</th><th></th></tr>
+      {% for e in rows %}
+      <tr><td><b>{{ e['title'] }}</b> <span class="pill cyan">{{ e['kind'] }}</span><br><span class="muted tiny">{{ e['location'] }}</span></td>
+        <td class="nowrap">{{ e['event_date'] }}{% if e['event_date'] < today %}<br><span class="muted tiny">past</span>{% endif %}</td>
+        <td class="center">{{ e['n_apps'] }}</td><td class="right"><a class="btn ghost sm" href="{{ url_for('staff_event', eid=e['id']) }}">Manage</a></td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <form class="card" method="post">
+    <h3>Post a new event</h3>
+    <label>Title</label><input name="title" required placeholder="e.g. Galaxy Hack 2027">
+    <label>Type</label><select name="kind">{% for k in kinds %}<option value="{{ k }}">{{ k|capitalize }}</option>{% endfor %}</select>
+    <label>Date</label><input type="date" name="event_date" required>
+    <label>Location</label><input name="location" placeholder="Main Auditorium">
+    <label>Description</label><textarea name="description" rows="3"></textarea>
+    <button class="btn" style="margin-top:14px">Publish event</button>
+  </form>
+</div>
+{% endblock %}

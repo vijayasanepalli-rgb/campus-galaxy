@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, riskpill, cell with context %}
+{% block title %}Students{% endblock %}
+{% block hero %}{{ hero('Students', 'Search, filter by risk, and open any student to see the full picture and log an intervention.') }}{% endblock %}
+{% block content %}
+<div class="card">
+  <form class="row" method="get">
+    <div class="grow"><input name="q" value="{{ q }}" placeholder="Search by name or roll number"></div>
+    <select name="risk" style="width:auto"><option value="">All risk levels</option>
+      {% for r in ['high','medium','low'] %}<option value="{{ r }}" {{ 'selected' if risk == r }}>{{ r|capitalize }} risk</option>{% endfor %}</select>
+    <button class="btn">Filter</button>
+  </form>
+</div>
+<div class="card mt scroll">
+  <table class="table">
+    <tr><th>Student</th><th class="center">Success</th><th class="center">Academics</th><th class="center">Attendance</th><th class="center">LMS</th><th class="center">Placement</th><th>Risk</th><th>Segment</th></tr>
+    {% for r in rows %}{% set c = {} %}
+    <tr><td><a href="{{ url_for('staff_student', sid=r.u['id']) }}"><b>{{ r.u['name'] }}</b></a><br><span class="muted tiny">{{ r.u['roll_no'] }}</span></td>
+      <td class="center">{{ cell(r.m.success) }}</td>
+      <td class="center">{{ cell(r.m.academics) }}</td>
+      <td class="center">{{ cell(r.m.att_overall) }}</td>
+      <td class="center">{{ cell(r.m.components[2].score) }}</td>
+      <td class="center">{{ cell(r.m.placement.score) }}</td>
+      <td>{{ riskpill(r.m.risk) }}</td><td class="small">{{ r.m.segment }}</td></tr>
+    {% else %}<tr><td colspan="8" class="empty">No students match.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

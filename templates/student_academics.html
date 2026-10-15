@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, bar, kpi, cell with context %}
+{% block title %}Academics{% endblock %}
+{% block hero %}
+{% call hero('Tests & Academics', 'Marks, subject scores, backlogs and a personalised plan built from your weakest subjects.') %}
+  <a class="btn" href="{{ url_for('student_tests') }}">Take a test</a>
+  <a class="btn light" href="{{ url_for('copilot_page') }}">Practice with Copilot</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="grid g3">
+  {{ kpi('Academic average', "%.0f%%"|format(m.academics), 'Marks blended with quiz results', band(m.academics)) }}
+  {{ kpi('Backlogs', m.backlogs|length, 'Subjects below 40%', 'low' if m.backlogs else 'good') }}
+  {{ kpi('Quiz average', ("%.0f%%"|format(m.mcq_pct)) if m.mcq_pct is not none else '—', (m.mcq|length ~ ' quiz(zes) taken') if m.mcq else 'No quizzes taken yet', band(m.mcq_pct) if m.mcq_pct is not none else '') }}
+</div>
+
+<div class="grid g2 mt">
+  <div class="card"><h3>Subject scores <span class="sub">latest exam</span></h3><div class="chartbox"><canvas id="subj"></canvas></div></div>
+  <div class="card scroll">
+    <h3>Marks by exam</h3>
+    <table class="table">
+      <tr><th>Subject</th>{% for e in m.exams %}<th class="center">{{ e }}</th>{% endfor %}</tr>
+      {% for s in m.subjects %}
+      <tr><td><b>{{ s.name }}</b>{% if s.latest < 40 %} <span class="pill low">backlog</span>{% endif %}</td>
+        {% for v in s.trend %}<td class="center">{{ cell(v) }}</td>{% endfor %}</tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% if m.backlogs %}
+<div class="card mt" style="border-color:#f5b9bc">
+  <h3>⚠️ Backlog watch</h3>
+  <p class="muted">You are below the pass mark in: <b>{{ m.backlogs|map(attribute='name')|join(', ') }}</b>. Start with the plan below and meet your faculty this week.</p>
+</div>
+{% endif %}
+
+<h2 class="section-title">Your personalised 7-day study plan</h2>
+<div class="plan">
+  {% for p in plan %}
+  <div><b>{{ p.day }}</b><div class="t">{{ p.title }}</div><span class="muted">{{ p.detail }}</span>
+    {% if p.link %}<br><a href="{{ p.link }}" target="_blank" rel="noopener">▶ Watch a lesson</a>{% endif %}</div>
+  {% endfor %}
+</div>
+
+{% if m.mcq %}
+<div class="card mt"><h3>Quiz results</h3>
+  <ul class="list">{% for q in m.mcq %}<li style="justify-content:space-between"><span>{{ q.title }}</span><span class="cell {{ band(q.p) }}">{{ "%.0f"|format(q.p) }}%</span></li>{% endfor %}</ul>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>barChart("subj", {{ chart.names|tojson }}, {{ chart.latest|tojson }}, "Latest %", 40);</script>
+{% endblock %}

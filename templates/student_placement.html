@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, bar, ring with context %}
+{% block title %}Placement{% endblock %}
+{% block hero %}
+{% call hero('Placement readiness', 'Aptitude, coding, communication and mock interviews, all in one score.') %}
+  <a class="btn" href="{{ url_for('student_tests', kind='coding') }}">Practice coding</a>
+  <a class="btn light" href="{{ url_for('student_engagement', kind='workshop') }}">Find workshops</a>
+{% endcall %}
+{% endblock %}
+{% block content %}
+{% set p = m.placement %}
+<div class="grid g23">
+  <div class="card center"><h3>Overall readiness</h3>{{ ring(p.score, 'out of 100') }}
+    <p class="muted small" style="margin-top:12px">{{ p.mock_count }} mock interview(s) completed</p></div>
+  <div class="card">
+    <h3>Skill areas</h3>
+    {% for label, v in [('Aptitude', p.aptitude), ('Coding', p.coding), ('Communication', p.communication), ('Mock interviews', p.mock_interview)] %}
+    <div class="barrow"><span class="n">{{ label }}</span>{{ bar(v, band(v)) }}<span class="p">{{ "%.0f"|format(v) }}</span></div>
+    {% endfor %}
+  </div>
+</div>
+<div class="grid g2 mt">
+  <div class="card">
+    <h3>💻 Coding practice effect</h3>
+    <p>Base coding readiness <b>{{ "%.0f"|format(p.coding_base) }}</b> + practice bonus <b style="color:var(--good)">+{{ p.coding_bonus }}</b> = <b>{{ "%.0f"|format(p.coding) }}</b></p>
+    <p class="muted small">Every fully solved coding problem adds +5 (maximum +20). You have fully solved <b>{{ p.solved }}</b> so far.</p>
+    <a class="btn" href="{{ url_for('student_tests', kind='coding') }}">Open coding exams</a>
+  </div>
+  <div class="card">
+    <h3>Next steps</h3>
+    <ul class="list">
+      <li>🧮<span><b>Aptitude:</b> practise 20 quant and logical questions a day.</span></li>
+      <li>🗣️<span><b>Communication:</b> record a 2-minute self-introduction and review it.</span></li>
+      <li>🎤<span><b>Mock interviews:</b> join the Resume and Mock Interview Bootcamp from Engagement.</span></li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

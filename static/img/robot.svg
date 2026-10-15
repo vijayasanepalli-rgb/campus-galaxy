@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" fill="none">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e6e2ff"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8c7bff"/><stop offset="1" stop-color="#5b4bd6"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#4dd0ff" stop-opacity=".9"/><stop offset="1" stop-color="#4dd0ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="120" cy="268" rx="64" ry="8" fill="#0b1030" opacity=".18"/>
+  <line x1="120" y1="30" x2="120" y2="54" stroke="#8c7bff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="120" cy="22" r="22" fill="url(#glow)"/>
+  <circle cx="120" cy="22" r="9" fill="#4dd0ff"/>
+  <rect x="42" y="84" width="16" height="32" rx="8" fill="url(#accent)"/>
+  <rect x="182" y="84" width="16" height="32" rx="8" fill="url(#accent)"/>
+  <rect x="56" y="50" width="128" height="96" rx="38" fill="url(#body)" stroke="#d3ceff" stroke-width="3"/>
+  <rect x="72" y="68" width="96" height="60" rx="27" fill="#12174a"/>
+  <ellipse cx="98" cy="96" rx="11" ry="13" fill="#4dd0ff"/>
+  <ellipse cx="142" cy="96" rx="11" ry="13" fill="#4dd0ff"/>
+  <circle cx="101" cy="91" r="4" fill="#fff"/><circle cx="145" cy="91" r="4" fill="#fff"/>
+  <path d="M107 114 q13 11 26 0" stroke="#4dd0ff" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <rect x="104" y="144" width="32" height="14" rx="5" fill="#b9b3f7"/>
+  <rect x="62" y="154" width="116" height="94" rx="34" fill="url(#body)" stroke="#d3ceff" stroke-width="3"/>
+  <rect x="90" y="174" width="60" height="36" rx="13" fill="#12174a"/>
+  <circle cx="106" cy="192" r="5" fill="#ff6fb5"/>
+  <circle cx="122" cy="192" r="5" fill="#4dd0ff"/>
+  <rect x="133" y="188" width="10" height="8" rx="3" fill="#8c7bff"/>
+  <rect x="28" y="166" width="30" height="66" rx="15" fill="url(#body)" stroke="#d3ceff" stroke-width="3"/>
+  <circle cx="43" cy="228" r="11" fill="url(#accent)"/>
+  <g transform="rotate(-32 196 168)">
+    <rect x="182" y="150" width="30" height="66" rx="15" fill="url(#body)" stroke="#d3ceff" stroke-width="3"/>
+    <circle cx="197" cy="148" r="11" fill="url(#accent)"/>
+  </g>
+  <rect x="76" y="242" width="40" height="22" rx="11" fill="url(#accent)"/>
+  <rect x="124" y="242" width="40" height="22" rx="11" fill="url(#accent)"/>
+</svg>

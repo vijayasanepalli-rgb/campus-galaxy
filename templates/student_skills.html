@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, ring with context %}
+{% block title %}Skills & Feedback{% endblock %}
+{% block hero %}{{ hero('Skills & Feedback', 'Where your skills stand and what your faculty are saying.') }}{% endblock %}
+{% block content %}
+<div class="grid g2">
+  <div class="card">
+    <h3>My skills <span class="sub">level 1 to 5</span></h3>
+    {% for s in m.skills %}
+    <div class="barrow" style="grid-template-columns:150px 1fr 40px"><span class="n">{{ s.skill }}</span>
+      <span class="dots">{% for i in range(5) %}{% if i < s.level %}●{% else %}<span class="off">●</span>{% endif %}{% endfor %}</span>
+      <span class="p">{{ s.level }}/5</span></div>
+    {% else %}<div class="empty">No skills recorded yet.</div>{% endfor %}
+    {% if missing %}<h3 style="margin-top:18px">Skills worth adding</h3><div class="chips">{% for s in missing %}<span class="chip">{{ s }}</span>{% endfor %}</div>{% endif %}
+  </div>
+  <div class="card">
+    <h3>Faculty feedback <span class="sub">average {{ "%.0f"|format(m.feedback_pct) }}%</span></h3>
+    <ul class="list">
+      {% for f in m.feedback %}
+      <li><div class="avatar" style="width:34px;height:34px;font-size:13px">{{ f.from_name[0] }}</div>
+        <span><b>{{ f.from_name }}</b> <span class="muted tiny">{{ f.created_at }}</span> <span class="dots" style="font-size:11px">{% for i in range(f.rating) %}★{% endfor %}</span><br>{{ f.comment }}</span></li>
+      {% else %}<li class="empty">No feedback yet.</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

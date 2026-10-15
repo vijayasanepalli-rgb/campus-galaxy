@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, kpi, eventdate with context %}
+{% block title %}Engagement{% endblock %}
+{% block hero %}{{ hero('Engagement', 'Events, clubs, hackathons, workshops and certifications posted by your faculty. Apply in one click.') }}{% endblock %}
+{% block content %}
+<div class="grid g3">
+  {{ kpi('Attended', m.attended, 'Activities completed', '') }}
+  {{ kpi('Applied', m.applied, 'Waiting for the event date', '') }}
+  {{ kpi('Engagement score', "%.0f"|format(m.components[4].score), 'Feeds your Success Score', band(m.components[4].score)) }}
+</div>
+
+<div class="chips mt">
+  <a class="chip {{ 'on' if not kind }}" href="{{ url_for('student_engagement') }}">All</a>
+  {% for k in kinds %}<a class="chip {{ 'on' if kind == k }}" href="{{ url_for('student_engagement', kind=k) }}">{{ k|capitalize }}</a>{% endfor %}
+</div>
+
+<h2 class="section-title">Upcoming</h2>
+<div class="grid g2">
+  {% for e in upcoming %}
+  <div class="card event">{{ eventdate(e['event_date']) }}
+    <div style="flex:1">
+      <b>{{ e['title'] }}</b> <span class="pill cyan">{{ e['kind'] }}</span>
+      <p class="muted small" style="margin:4px 0 8px">{{ e['description'] }}</p>
+      <span class="tiny muted">📍 {{ e['location'] }} · {{ e['n_apps'] }} applied</span>
+      <div style="margin-top:10px">
+        {% if e['my_status'] %}<span class="pill good">{{ 'Applied ✓' if e['my_status']=='applied' else 'Attended ✓' }}</span>
+        {% else %}<form method="post" action="{{ url_for('student_apply', eid=e['id']) }}"><button class="btn sm">Apply now</button></form>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% else %}<div class="card empty" style="grid-column:1/-1">No upcoming events in this category.</div>{% endfor %}
+</div>
+
+<h2 class="section-title">Past activity</h2>
+<div class="card scroll">
+  <table class="table">
+    <tr><th>Event</th><th>Type</th><th>Date</th><th>Your status</th></tr>
+    {% for e in past %}
+    <tr><td><b>{{ e['title'] }}</b></td><td><span class="pill cyan">{{ e['kind'] }}</span></td><td>{{ e['event_date'] }}</td>
+      <td>{% if e['my_status'] == 'attended' %}<span class="pill good">Attended</span>{% elif e['my_status'] %}<span class="pill ok">Applied</span>{% else %}<span class="muted">Did not join</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="4" class="empty">Nothing here yet.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

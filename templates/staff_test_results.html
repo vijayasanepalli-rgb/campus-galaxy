@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_macros.html" import hero, cell with context %}
+{% block title %}Results{% endblock %}
+{% block hero %}
+{% call hero(t['title'] ~ ': results', (t['kind']|capitalize) ~ ' · ' ~ t['duration'] ~ ' min') %}<a class="btn light sm" href="{{ url_for('staff_tests') }}">← All tests</a>{% endcall %}
+{% endblock %}
+{% block content %}
+<div class="card scroll">
+  <table class="table">
+    <tr><th>Student</th><th class="center">Score</th><th class="center">%</th><th class="center">{{ 'Attempts' if t['kind']=='mcq' else 'Problems tried' }}</th><th>Last activity</th></tr>
+    {% for r in rows %}
+    <tr><td><b>{{ r['name'] }}</b> <span class="muted tiny">{{ r['roll_no'] }}</span></td>
+      <td class="center">{{ "%g"|format(r['s']) }} / {{ "%g"|format(r['mx']) }}</td>
+      <td class="center">{{ cell(100 * r['s'] / r['mx'] if r['mx'] else 0) }}</td>
+      <td class="center">{{ r['n'] }}</td><td class="muted">{{ r['at_'] }}</td></tr>
+    {% else %}<tr><td colspan="5" class="empty">No students have taken this test yet.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}
